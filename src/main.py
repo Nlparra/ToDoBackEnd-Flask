@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from models import db,ToDo
-#from models import Person
+
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -31,11 +31,26 @@ def sitemap():
 @app.route('/todo', methods=['POST', 'GET'])
 def handle_todo():
 
-    response_body = {
-        "hello": "world"
-    }
+    if request.method == "POST":
+        body = request.get_json()
+        
+        if body is None:
+            raise APIException("You need to specify the request body as a json object",status_code = 400)
+        if "label" not in body:
+            raise APIException("You need to specify to do ", status_code = 400)
 
     return jsonify(response_body), 200
+todo1 = ToDo(labe=body["label"])
+        db.session.add(todo1)
+        db.session.commit()
+
+        return "Ok", 200
+
+
+
+
+
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
